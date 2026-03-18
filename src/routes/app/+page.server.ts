@@ -94,7 +94,7 @@ export async function load({ platform, request, locals }) {
   const isAuth = await checkAuth(platform, request);
   if (!isAuth) error(400, "Not authorised");
   if (!isAuth.authorised) {
-    redirect(307, "/app/unauthorised");
+    error(400, "You have not been granted access to hello-otp. Kindly check if you have signed in with the right email, you are currently signed in as " + locals.session.user.email);
   }
 
   return { ...isAuth, email: locals.session.user.email };

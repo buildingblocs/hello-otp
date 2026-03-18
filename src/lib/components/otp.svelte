@@ -81,6 +81,6 @@
       </Tooltip.Root>
     </Tooltip.Provider>
   {:else}
-    <Skeleton class="h-37.5 w-100 rounded-xl" />
+    <Skeleton class="sm:h-37.5 sm:w-100 w-75 h-30 rounded-xl dark:bg-slate-900" />
   {/if}
 </div>

@@ -4,13 +4,14 @@
   import * as InputOTP from "$lib/components/ui/input-otp/index.js";
   import { authClient } from "$lib/auth-client";
   import "../layout.css";
-  import favicon from "$lib/assets/favicon.svg";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
+  import type { ActionResult } from "@sveltejs/kit";
+  import { deserialize } from "$app/forms";
 
   // states
   let sent = $state(false);
@@ -31,10 +32,27 @@
     loading = true;
     email = email.toLowerCase();
     error = "";
+
+    const data = new FormData();
+    data.append("email", email);
+    const response = await fetch("/login", {
+      method: "POST",
+      body: data,
+    });
+    const result: ActionResult = deserialize(await response.text());
+
+    if (!result) error = "Could not check allowlist";
+    if (result.type == "failure") {
+      error = result.data ? result.data.message : "Received error while checking allowlist"
+      loading = false;
+      return;
+    }
+
     const { error: err } = await authClient.emailOtp.sendVerificationOtp({
       email,
       type: "sign-in",
     });
+
     loading = false;
 
     if (err) {
@@ -74,10 +92,10 @@
 
 <div class="dark:bg-black">
   <div
-    class="flex flex-col gap-8 items-center justify-center h-dvh max-w-sm mx-auto"
+    class="flex flex-col gap-8 items-center justify-center h-dvh max-w-sm mx-auto p-5"
   >
     <Card.Root
-      class="-my-4 w-full dark:bg-black dark:text-white dark:border-white/15"
+      class="w-full dark:bg-black dark:text-white dark:border-white/15"
     >
       <Card.Header>
         <Card.Title>Login to hello-otp</Card.Title>
@@ -100,13 +118,13 @@
             {#snippet children({ cells })}
               <InputOTP.Group>
                 {#each cells.slice(0, 3) as cell (cell)}
-                  <InputOTP.Slot class="border-white/30" {cell} />
+                  <InputOTP.Slot class="dark:bg-slate-900! dark:border-white/30" {cell} />
                 {/each}
               </InputOTP.Group>
-              <InputOTP.Separator class="border-white/30" />
+              <InputOTP.Separator />
               <InputOTP.Group>
                 {#each cells.slice(3, 6) as cell (cell)}
-                  <InputOTP.Slot class="border-white/30" {cell} />
+                  <InputOTP.Slot class="dark:bg-slate-900! dark:border-white/30" {cell} />
                 {/each}
               </InputOTP.Group>
             {/snippet}
@@ -116,7 +134,7 @@
             <div class="grid gap-2 w-full">
               <Label for="email">Email</Label>
               <Input
-                class="dark:border-white/15 dark:bg-slate-900"
+                class="dark:border-white/15 dark:bg-slate-900 dark:selection:bg-slate-500"
                 autocomplete="email"
                 onkeydown={(e) => {
                   if (e.key === "Enter") sendOtp(false);
@@ -148,17 +166,25 @@
           >
             Back
           </Button>
-          <Button onclick={verifyOtp} class="flex-1 dark:bg-slate-800 dark:hover:bg-slate-900">Login</Button>
+          <Button
+            onclick={verifyOtp}
+            class="flex-1 dark:bg-slate-800 dark:hover:bg-slate-900"
+            >Login</Button
+          >
         {:else}
-          <Button onclick={() => sendOtp(false)} class="w-full dark:bg-slate-800 dark:hover:bg-slate-900">Login</Button>
+          <Button
+            onclick={() => sendOtp(false)}
+            class="w-full dark:bg-slate-800 dark:hover:bg-slate-900"
+            >Login</Button
+          >
         {/if}
       </Card.Footer>
     </Card.Root>
 
     {#if error}
-      <Alert.Root variant="destructive">
+      <Alert.Root variant="destructive" class="dark:bg-red-900/20 dark:border-white/15 dark:text-red-200">
         <Alert.Title>Authentication Error</Alert.Title>
-        <Alert.Description>{error}</Alert.Description>
+        <Alert.Description class="dark:text-red-300!">{error}</Alert.Description>
       </Alert.Root>
     {/if}
   </div>
