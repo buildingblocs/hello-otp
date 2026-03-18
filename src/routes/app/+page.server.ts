@@ -2,7 +2,7 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import checkAuth from "$lib/checkAuth.js";
 import type { Actions } from "./$types";
 import { env } from "$env/dynamic/private";
-  import { generate } from "otplib";
+import { generate } from "otplib";
 
 async function checkPerms(
   kv: KVNamespace<string> | undefined,
@@ -25,20 +25,20 @@ export const actions = {
     const kv = event.platform?.env?.host_otp;
     if (!kv) error(500, "Somethings not configured properly");
 
+    if (!key?.startsWith("allow:")) {
+      return fail(400, { message: "Invalid key provided" });
+    }
+
     const allowed = await checkPerms(kv, user);
 
     if (allowed) {
-      if (key) {
-        try {
-          await kv.delete(key);
-        } catch (e) {
-          return fail(500, String(e));
-        }
-      } else {
-        return fail(400, "No key provided");
+      try {
+        await kv.delete(key);
+      } catch (e) {
+        return fail(500, { message: String(e) });
       }
     } else {
-      return fail(401, "You are not authorised");
+      return fail(401, { message: "You are not authorised" });
     }
   },
 
@@ -49,22 +49,22 @@ export const actions = {
     const kv = event.platform?.env?.host_otp;
     if (!kv) error(500, "Somethings not configured properly");
 
+    if (!key?.startsWith("allow:")) {
+      return fail(400, { message: "Invalid key provided" });
+    }
+
     const allowed = await checkPerms(kv, user);
 
     if (allowed) {
-      if (key) {
-        try {
-          const addedOn = new Date().toISOString();
-          await kv.put(key, "1", { metadata: { addedOn } });
-          return { added: true, key, addedOn };
-        } catch (e) {
-          return fail(500, String(e));
-        }
-      } else {
-        return fail(400, "No key provided");
+      try {
+        const addedOn = new Date().toISOString();
+        await kv.put(key, "1", { metadata: { addedOn } });
+        return { added: true, key, addedOn };
+      } catch (e) {
+        return fail(500, { message: String(e) });
       }
     } else {
-      return fail(401, "You are not authorised");
+      return fail(401, { message: "You are not authorised" });
     }
   },
 
@@ -76,14 +76,16 @@ export const actions = {
     const allowed = await checkPerms(kv, user);
     const secret = env.OTP_SECRET;
 
+    if (!secret) error(500, "OTP_SECRET environment variable not set");
+
     if (allowed) {
       try {
         return await generate({ secret });
       } catch (e) {
-        return fail(500, String(e));
+        return fail(500, { message: String(e) });
       }
     } else {
-      return fail(401, "Not authorised")
+      return fail(401, { message: "Not authorised" });
     }
   },
 } satisfies Actions;

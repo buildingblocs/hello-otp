@@ -107,7 +107,7 @@
                 <div class="flex flex-col gap-6 w-full">
                     <div class="grid gap-2 w-full">
                         <Label for="email">Email</Label>
-                        <Input onkeydown={(e) => { if (e.key === "Enter") sendOtp(false); }} bind:value={email} type="email" placeholder="m@example.com" required />
+                        <Input autocomplete="email" onkeydown={(e) => { if (e.key === "Enter") sendOtp(false); }} bind:value={email} type="email" placeholder="m@example.com" required />
                     </div>
                 </div>
             {/if}

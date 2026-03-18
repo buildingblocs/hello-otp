@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth"
+import { APIError, betterAuth } from "better-auth"
 import { emailOTP } from "better-auth/plugins"
 import { env } from "$env/dynamic/private";
 
@@ -22,9 +22,11 @@ export const auth = betterAuth({
                             }
                         })
                     });
-                    const data = await response.json();
+                    const res = await response.json();
+                    if (!res) throw new APIError("BAD_GATEWAY")
+                    return;
                 } catch (error) {
-                    console.error(error);
+                    throw new APIError("BAD_GATEWAY")
                 }
             },
         })

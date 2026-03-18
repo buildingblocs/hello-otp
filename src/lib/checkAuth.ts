@@ -1,6 +1,5 @@
 import { error } from "@sveltejs/kit";
 import { auth } from "$lib/auth";
-import addUser from "./addUser";
 
 type UserKeyMetadata = {
   addedOn?: string;
@@ -22,11 +21,11 @@ export default async function checkAuth(
 ) {
   const kv = platform?.env?.host_otp;
   if (!kv) error(500, "Somethings not configured properly");
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  const useremail = session?.user.email;
   try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    const useremail = session?.user.email;
     const { keys: kvdata } = await kv.list();
     if (useremail) {
       if (kvdata.length === 0) {
@@ -41,6 +40,6 @@ export default async function checkAuth(
       }
     }
   } catch (e) {
-    error(500, String(e) ?? "There was an error receiving list of users");
+    error(500, String(e) ?? "There was an error receiving list of users, please report this issue");
   }
 }

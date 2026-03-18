@@ -16,7 +16,7 @@
         (e: string) => e.toLowerCase() === sanitisedEmail,
       );
       const existsInKv = userList.some(
-        (e) => e.name.toLowerCase() === "allow:" + sanitisedEmail,
+        (e: { name: string }) => e.name.toLowerCase() === "allow:" + sanitisedEmail,
       );
       if (existsInList || existsInKv) {
         toast.warning("User has been added already");

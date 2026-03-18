@@ -29,6 +29,10 @@
         if (res.data) {
           token = String(res.data);
         }
+      } else {
+        if (res.type == "error") {
+          token = res.error.message
+        }
       }
     }
   }
