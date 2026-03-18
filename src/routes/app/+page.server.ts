@@ -13,7 +13,7 @@ async function checkPerms(
     const value = await kv.get("allow:" + user.email);
     return value == "1";
   } catch (e) {
-    return e;
+    return false;
   }
 }
 
