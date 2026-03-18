@@ -12,13 +12,9 @@ export async function handle({ event, resolve }) {
   let session;
 
   if (!isException) {
-    try {
-      session = await auth.api.getSession({
-        headers: event.request.headers,
-      });
-    } catch (e) {
-      error(500, "Failed to authenticate, please report this issue");
-    }
+    session = await auth.api.getSession({
+      headers: event.request.headers,
+    });
 
     event.locals.session = session;
 
