@@ -74,7 +74,7 @@
 
 <div class="dark:bg-black">
   <div
-    class="flex flex-col gap-8 items-center justify-center h-screen max-w-sm mx-auto"
+    class="flex flex-col gap-8 items-center justify-center h-dvh max-w-sm mx-auto"
   >
     <Card.Root
       class="-my-4 w-full dark:bg-black dark:text-white dark:border-white/15"
